@@ -48,6 +48,8 @@ export default function ReadingForm({ readingType, readingTitle, price, onClose,
     return true;
   };
 
+  const isTestMode = formData.name.toUpperCase() === "TEST";
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md overflow-y-auto">
       <div className="relative w-full max-w-lg bg-mystic-dark border border-mystic-gold/30 rounded-3xl p-8 shadow-2xl shadow-mystic-purple/20 my-auto">
@@ -82,6 +84,9 @@ export default function ReadingForm({ readingType, readingTitle, price, onClose,
                     className="w-full bg-mystic-purple/10 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-mystic-gold/50 transition-colors"
                     placeholder="Enter your name"
                   />
+                  <p className="mt-1 text-[10px] text-mystic-lavender/30 italic">
+                    Hint: Use name "TEST" to enable test bypass.
+                  </p>
                 </div>
                 <div>
                   <label className="block text-sm text-mystic-lavender/60 mb-2 font-medium">Birth Date (Optional)</label>
@@ -162,19 +167,38 @@ export default function ReadingForm({ readingType, readingTitle, price, onClose,
                 To receive your personalized {readingTitle}, please complete the secure payment of {price}.
               </p>
               
-              {formData.name.toUpperCase() === "TEST" ? (
-                <button
-                  type="button"
-                  onClick={() => onPaymentSuccess(formData)}
-                  className="w-full py-4 rounded-xl bg-green-600 text-white font-bold font-cinzel hover:bg-green-700 transition-colors shadow-lg shadow-green-900/20"
-                >
-                  Test Payment (Bypass)
-                </button>
+              {isTestMode ? (
+                <div className="space-y-4">
+                  <div className="p-4 bg-green-500/10 border border-green-500/50 rounded-xl">
+                    <p className="text-green-500 text-sm font-medium mb-1">Test Mode Active</p>
+                    <p className="text-green-500/60 text-[10px]">Name "TEST" detected. You can bypass payment for verification.</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => onPaymentSuccess(formData)}
+                    className="w-full py-4 rounded-xl bg-green-600 text-white font-bold font-cinzel hover:bg-green-700 transition-colors shadow-lg shadow-green-900/20"
+                  >
+                    Free Test Bypass
+                  </button>
+                  <div className="relative">
+                    <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-white/5"></div></div>
+                    <div className="relative flex justify-center text-[10px] uppercase text-mystic-lavender/20 bg-mystic-dark px-2">or pay with paypal</div>
+                  </div>
+                  <PayPalButton 
+                    amount={price.replace("$", "")} 
+                    onSuccess={() => onPaymentSuccess(formData)}
+                  />
+                </div>
               ) : (
-                <PayPalButton 
-                  amount={price.replace("$", "")} 
-                  onSuccess={() => onPaymentSuccess(formData)}
-                />
+                <div className="space-y-4">
+                  <PayPalButton 
+                    amount={price.replace("$", "")} 
+                    onSuccess={() => onPaymentSuccess(formData)}
+                  />
+                  <p className="text-[10px] text-mystic-lavender/30">
+                    Secure checkout via PayPal. No account required.
+                  </p>
+                </div>
               )}
             </div>
           )}

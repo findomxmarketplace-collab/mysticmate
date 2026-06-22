@@ -98,7 +98,7 @@ export default function ReadingResult({ reading, title, type, onReset, onUpsell 
               © MysticMate - Copyright Not For Resale
             </p>
             <p className="text-[8px] text-mystic-lavender/20 uppercase leading-tight max-w-md mx-auto">
-              Disclaimer: For entertainment purposes only. Our readings should not replace professional advice. 
+              Disclaimer: <span className="font-bold text-mystic-gold">AI Generated</span>. For entertainment purposes only. Our readings should not replace professional advice. 
               All content is G-rated and strictly copyright-protected.
             </p>
           </div>
