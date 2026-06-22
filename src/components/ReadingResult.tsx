@@ -18,37 +18,49 @@ export default function ReadingResult({ reading, title, type, onReset, onUpsell 
   const [isDownloading, setIsDownloading] = useState(false);
   const [copied, setCopied] = useState(false);
 
+  // Parse cards if it is a tarot reading
+  const cardsLine = reading.split("\n").find(l => l.startsWith("CARDS:"));
+  const cards = cardsLine ? cardsLine.replace("CARDS:", "").split(",").map(c => c.trim()) : [];
+  const cleanReading = reading.split("\n").filter(l => !l.startsWith("CARDS:")).join("\n").trim();
+
   const downloadPDF = async () => {
     if (!resultRef.current) return;
     setIsDownloading(true);
 
     try {
+      // Use a more robust configuration for html2canvas
       const canvas = await html2canvas(resultRef.current, {
         backgroundColor: "#0f051d",
         scale: 2,
-        logging: false,
         useCORS: true,
+        allowTaint: true,
+        logging: false,
+        onclone: (clonedDoc) => {
+          // Ensure cloned elements are visible for capture
+          const el = clonedDoc.querySelector("[data-capture-container]") as HTMLElement;
+          if (el) el.style.transform = "none";
+        }
       });
 
-      const imgData = canvas.toDataURL("image/png");
+      const imgData = canvas.toDataURL("image/jpeg", 1.0);
       const pdf = new jsPDF({
         orientation: "portrait",
         unit: "px",
         format: [canvas.width / 2, canvas.height / 2],
       });
 
-      pdf.addImage(imgData, "PNG", 0, 0, canvas.width / 2, canvas.height / 2);
+      pdf.addImage(imgData, "JPEG", 0, 0, canvas.width / 2, canvas.height / 2);
       pdf.save(`MysticMate-${title.replace(/\s+/g, "-")}.pdf`);
     } catch (error) {
       console.error("PDF generation failed:", error);
-      alert("Failed to generate PDF. Please try again.");
+      alert("Failed to generate PDF. Please try again. Detailed error: " + (error instanceof Error ? error.message : "Unknown error"));
     } finally {
       setIsDownloading(false);
     }
   };
 
   const copyToClipboard = () => {
-    navigator.clipboard.writeText(`My MysticMate Reading: ${title}\n\n${reading}`);
+    navigator.clipboard.writeText(`My MysticMate Reading: ${title}\n\n${cleanReading}`);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -70,6 +82,7 @@ export default function ReadingResult({ reading, title, type, onReset, onUpsell 
       <div className="animate-in fade-in zoom-in duration-700">
         <div 
           ref={resultRef}
+          data-capture-container
           className="bg-mystic-dark border border-mystic-gold/20 rounded-3xl p-10 shadow-2xl shadow-mystic-purple/20"
         >
           {/* Branding in PDF */}
@@ -84,8 +97,30 @@ export default function ReadingResult({ reading, title, type, onReset, onUpsell 
             </div>
           </div>
 
+          {/* Visual Tarot Cards Section */}
+          {type === "tarot" && cards.length > 0 && (
+            <div className="mb-10 flex justify-center gap-4">
+              {cards.map((card, idx) => (
+                <div key={idx} className="flex flex-col items-center group">
+                  <div className="w-24 h-40 rounded-lg border-2 border-mystic-gold/30 bg-mystic-purple/20 flex flex-col items-center justify-center p-2 text-center shadow-inner overflow-hidden relative">
+                    <div className="absolute inset-0 bg-gradient-to-br from-mystic-gold/5 to-transparent"></div>
+                    <span className="text-[10px] text-mystic-gold/60 font-cinzel mb-1 uppercase tracking-tighter">
+                      {idx === 0 ? "Past" : idx === 1 ? "Present" : "Future"}
+                    </span>
+                    <div className="w-10 h-10 rounded-full border border-mystic-gold/20 flex items-center justify-center mb-2">
+                      <span className="text-xl text-mystic-gold">✧</span>
+                    </div>
+                    <span className="text-[11px] font-cinzel text-white font-bold leading-tight uppercase">
+                      {card}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
           <div className="prose prose-invert max-w-none">
-            {reading.split("\n").map((line, i) => (
+            {cleanReading.split("\n").map((line, i) => (
               <p key={i} className="text-mystic-lavender/90 mb-4 leading-relaxed whitespace-pre-wrap text-lg">
                 {line}
               </p>
