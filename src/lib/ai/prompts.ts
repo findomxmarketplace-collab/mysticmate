@@ -6,12 +6,13 @@ export type ReadingContext = {
   recentSigns?: string;
   relationshipStatus?: "single" | "partnered";
   careerStatus?: "employed" | "seeking";
+  lifeGoals?: string;
 };
 
-export type ReadingType = "tarot" | "love" | "career" | "spirit-animal";
+export type ReadingType = "tarot" | "love" | "career" | "spirit-animal" | "spell" | "crystal";
 
 export const SYSTEM_PROMPT = `You are MysticMate, a compassionate and uplifting spiritual guide. 
-Your goal is to provide G-rated, encouraging, and honest readings. 
+Your goal is to provide G-rated, encouraging, and honest readings and spiritual guidance. 
 Avoid dark or scary predictions. Focus on empowerment, potential, and positive energy.
 Always speak in a mystical yet accessible tone.
 All content must be original and copyright-protected by MysticMate.`;
@@ -42,66 +43,52 @@ export const SPIRIT_ANIMALS = [
 
 export const PROMPTS: Record<ReadingType, (ctx: ReadingContext) => string> = {
   tarot: (ctx) => `
-    Please provide a 3-card Tarot reading for ${ctx.name} (${ctx.starSign}).
-    Current Date: ${new Date().toLocaleDateString()}.
-    Current Mood: ${ctx.mood}.
-    Recent Signs: ${ctx.recentSigns || "None reported"}.
+    Provide a 3-card Tarot reading for ${ctx.name} (${ctx.starSign}).
+    Current Date: ${new Date().toLocaleDateString()}. Moon Influence: Active Cycle.
+    Mood: ${ctx.mood}. Signs: ${ctx.recentSigns || "None"}.
     
-    IMPORTANT: First, explicitly name the 3 cards drawn at the very top of your response in this format:
-    CARDS: [Card 1], [Card 2], [Card 3]
-
-    Then, provide a deep analysis that incorporates:
-    - The current time of the month and moon cycle influence on a ${ctx.starSign}.
-    - How their ${ctx.mood} energy interacts with the cards.
-    
-    Structure the response as:
-    1. The Past ([Card 1]): [Interpretation]
-    2. The Present ([Card 2]): [Interpretation]
-    3. The Future ([Card 3]): [Interpretation]
-    4. A final uplifting message tailored to their ${ctx.starSign} path.
+    IMPORTANT: Name the 3 cards at the top: CARDS: [Card 1], [Card 2], [Card 3]
+    Incorporate moon phase and ${ctx.starSign} traits.
   `,
   love: (ctx) => `
-    Please provide a DEEP Love & Relationships reading for ${ctx.name} (${ctx.starSign}).
-    Relationship Status: ${ctx.relationshipStatus === "partnered" ? "In a relationship" : "Currently single"}.
-    Current Date: ${new Date().toLocaleDateString()}.
+    Provide a DEEP Love & Relationships reading for ${ctx.name} (${ctx.starSign}).
+    Status: ${ctx.relationshipStatus}. Date: ${new Date().toLocaleDateString()}.
     Mood: ${ctx.mood}.
     
-    Incorporate the current moon phase energy and time of the month into this romantic guidance.
-    Provide insights that reflect the specific romantic strengths/challenges of a ${ctx.starSign} who is ${ctx.relationshipStatus}.
-    
-    Structure the response as:
-    - Current Heart Energy: [Deep Insights]
-    - Soul Connections & Moon Influence: [How the current time of month affects their ${ctx.starSign} heart]
-    - Guidance for the Path Ahead: [Specific advice for a ${ctx.relationshipStatus} person]
+    Incorporate moon phase and romantic strengths of ${ctx.starSign}.
   `,
   career: (ctx) => `
-    Please provide an in-depth Career & Finances reading for ${ctx.name} (${ctx.starSign}).
-    Career Status: ${ctx.careerStatus === "employed" ? "Currently in a career/job" : "Seeking a new path/unemployed"}.
-    Current Date: ${new Date().toLocaleDateString()}.
+    Provide an in-depth Career reading for ${ctx.name} (${ctx.starSign}).
+    Status: ${ctx.careerStatus}. Date: ${new Date().toLocaleDateString()}.
     Mood: ${ctx.mood}.
     
-    Tailor the advice to the professional archetypes of a ${ctx.starSign} during this specific time of the month and moon cycle.
-    Identify potential talents and a lucky number for manifestation.
-    
-    Structure the response as:
-    - Professional Path & Talents: [Insights]
-    - Manifesting Abundance & Career Growth: [Insights for someone who is ${ctx.careerStatus}]
-    - Your Lucky Manifestation Number: [Number]
-    - Closing Encouragement.
+    Incorporate current month energy and ${ctx.starSign} archetypes.
   `,
   "spirit-animal": (ctx) => `
-    Please provide a profound Spirit Animal & Energy reading for ${ctx.name} (${ctx.starSign}).
-    Current Date: ${new Date().toLocaleDateString()}.
-    Mood: ${ctx.mood}.
-
-    IMPORTANT: First, explicitly name the spirit animal guide at the very top of your response in this format:
-    ANIMAL: [Animal Name]
-
-    Connect their ${ctx.starSign} traits to their animal guide and the current lunar energy/time of month.
+    Provide a Spirit Animal reading for ${ctx.name} (${ctx.starSign}).
+    Date: ${new Date().toLocaleDateString()}.
+    IMPORTANT: Name animal at top: ANIMAL: [Name]
+  `,
+  spell: (ctx) => `
+    Generate a personalized, uplifting, AI-designed "White Magic" spell for ${ctx.name} (${ctx.starSign}).
+    Based on their mood: ${ctx.mood} and the current moon phase (${new Date().toLocaleDateString()}).
+    The spell should be based on traditional positive witchcraft but designed for modern spiritual use.
     
-    Structure the response as:
-    - Your Spirit Animal Guide: [Animal & Detailed Meaning]
-    - Aura Energy Analysis: [Interpretation based on their ${ctx.starSign} nature and the current time of month]
-    - Integration Message: [How to carry this energy forward]
+    Structure:
+    - Spell Name: [A mystical title]
+    - Components Needed: [Simple household or natural items]
+    - The Ritual: [Steps to perform]
+    - The Incantation: [Empowering words to speak]
+  `,
+  crystal: (ctx) => `
+    Suggest a specific Crystal and provide a deep energetic guide for ${ctx.name} (${ctx.starSign}).
+    Life Goals: ${ctx.lifeGoals}. Mood: ${ctx.mood}.
+    
+    IMPORTANT: Name the crystal at top: CRYSTAL: [Name]
+    
+    Structure:
+    - Your Suggested Crystal: [Name & Origins]
+    - Energetic Alignment: [How it supports their ${ctx.starSign} nature and goals]
+    - Usage Guide: [How to work with this stone]
   `,
 };

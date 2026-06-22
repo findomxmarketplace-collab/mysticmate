@@ -25,8 +25,11 @@ export default function ReadingResult({ reading, title, type, onReset, onUpsell 
   const animalLine = reading.split("\n").find(l => l.startsWith("ANIMAL:"));
   const animal = animalLine ? animalLine.replace("ANIMAL:", "").trim() : null;
 
+  const crystalLine = reading.split("\n").find(l => l.startsWith("CRYSTAL:"));
+  const crystal = crystalLine ? crystalLine.replace("CRYSTAL:", "").trim() : null;
+
   const cleanReading = reading.split("\n")
-    .filter(l => !l.startsWith("CARDS:") && !l.startsWith("ANIMAL:"))
+    .filter(l => !l.startsWith("CARDS:") && !l.startsWith("ANIMAL:") && !l.startsWith("CRYSTAL:"))
     .join("\n")
     .trim();
 
@@ -35,13 +38,10 @@ export default function ReadingResult({ reading, title, type, onReset, onUpsell 
     setIsDownloading(true);
 
     try {
-      // 1. Prepare element for capture (ensure no overflow, solid background)
       const element = resultRef.current;
-      
-      // 2. Use html2canvas with specific settings for Vercel/Production environments
       const canvas = await html2canvas(element, {
         backgroundColor: "#0f051d",
-        scale: 1.5, // Reduced from 2 to prevent memory issues
+        scale: 1.5,
         useCORS: true,
         allowTaint: true,
         logging: false,
@@ -53,15 +53,12 @@ export default function ReadingResult({ reading, title, type, onReset, onUpsell 
             el.style.transform = "none";
             el.style.animation = "none";
             el.style.margin = "0";
-            el.style.padding = "40px"; // Add consistent padding for PDF
+            el.style.padding = "40px";
           }
         }
       });
 
-      // 3. Convert to Image
       const imgData = canvas.toDataURL("image/jpeg", 0.9);
-      
-      // 4. Create PDF
       const pdf = new jsPDF({
         orientation: "portrait",
         unit: "px",
@@ -69,14 +66,12 @@ export default function ReadingResult({ reading, title, type, onReset, onUpsell 
       });
 
       pdf.addImage(imgData, "JPEG", 0, 0, canvas.width, canvas.height);
-      
-      // 5. Trigger download
       const fileName = `MysticMate-${title.replace(/\s+/g, "-")}.pdf`;
       pdf.save(fileName);
       
     } catch (error) {
       console.error("PDF generation failed:", error);
-      alert("PDF generation failed. Please try on a desktop browser if you are on mobile.");
+      alert("PDF generation failed. Please try on a desktop browser.");
     } finally {
       setIsDownloading(false);
     }
@@ -92,10 +87,12 @@ export default function ReadingResult({ reading, title, type, onReset, onUpsell 
     const recommendations: Record<ReadingType, { type: ReadingType; title: string }> = {
       tarot: { type: "spirit-animal", title: "Spirit Animal & Energy" },
       "spirit-animal": { type: "tarot", title: "Tarot Card Spread" },
-      love: { type: "career", title: "Career & Finances" },
-      career: { type: "love", title: "Love & Relationships" },
+      love: { type: "spell", title: "Personalized Spell" },
+      career: { type: "crystal", title: "Crystal Guide" },
+      spell: { type: "love", title: "Love & Relationships" },
+      crystal: { type: "career", title: "Career & Finances" },
     };
-    return recommendations[type];
+    return recommendations[type] || recommendations["tarot"];
   };
 
   const upsell = getUpsellRecommendation();
@@ -150,11 +147,31 @@ export default function ReadingResult({ reading, title, type, onReset, onUpsell 
                 <div className="text-5xl mb-3 drop-shadow-glow">🐾</div>
                 <span className="text-[10px] text-mystic-gold/60 font-cinzel mb-1 uppercase tracking-[0.2em]">Your Guide</span>
                 <h3 className="text-xl font-cinzel text-white font-bold uppercase tracking-tight">{animal}</h3>
-                <div className="absolute bottom-4 left-0 right-0 flex justify-center">
-                  <div className="flex gap-1">
-                    {[1,2,3].map(i => <span key={i} className="w-1 h-1 rounded-full bg-mystic-gold/40"></span>)}
-                  </div>
-                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Visual Crystal */}
+          {type === "crystal" && crystal && (
+            <div className="mb-10 flex flex-col items-center">
+              <div className="w-48 h-48 rounded-3xl border-2 border-cyan-500/30 bg-mystic-purple/10 flex flex-col items-center justify-center p-6 text-center shadow-2xl relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-tr from-cyan-500/10 to-transparent"></div>
+                <div className="text-5xl mb-3 drop-shadow-glow animate-pulse">💎</div>
+                <span className="text-[10px] text-cyan-400/60 font-cinzel mb-1 uppercase tracking-[0.2em]">Your Gemstone</span>
+                <h3 className="text-xl font-cinzel text-white font-bold uppercase tracking-tight">{crystal}</h3>
+              </div>
+            </div>
+          )}
+
+          {/* Visual Spell */}
+          {type === "spell" && (
+            <div className="mb-10 flex flex-col items-center">
+              <div className="w-full py-8 border-2 border-green-500/30 bg-mystic-purple/10 rounded-2xl flex flex-col items-center justify-center px-10 text-center shadow-2xl relative overflow-hidden">
+                <div className="absolute top-0 left-0 w-12 h-12 border-t-2 border-l-2 border-green-500/40 m-4 rounded-tl-xl"></div>
+                <div className="absolute bottom-0 right-0 w-12 h-12 border-b-2 border-r-2 border-green-500/40 m-4 rounded-br-xl"></div>
+                <div className="text-5xl mb-3 drop-shadow-glow">📜</div>
+                <h3 className="text-2xl font-cinzel text-white font-bold uppercase tracking-widest border-b border-green-500/20 pb-2 mb-2">Sacred Spell</h3>
+                <p className="text-[10px] text-green-400/60 font-cinzel uppercase tracking-[0.3em]">Woven for your spirit</p>
               </div>
             </div>
           )}
@@ -173,8 +190,8 @@ export default function ReadingResult({ reading, title, type, onReset, onUpsell 
               © MysticMate - Copyright Not For Resale
             </p>
             <p className="text-[8px] text-mystic-lavender/20 uppercase leading-tight max-w-md mx-auto">
-              Disclaimer: <span className="font-bold text-mystic-gold">AI Generated</span>. For entertainment purposes only. Our readings should not replace professional advice. 
-              All content is G-rated and strictly copyright-protected.
+              Disclaimer: <span className="font-bold text-mystic-gold">AI Generated</span>. For entertainment purposes only. 
+              Created by a spiritual witch for those who love woo woo.
             </p>
           </div>
         </div>
