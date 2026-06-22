@@ -35,15 +35,29 @@ export default function ReadingForm({ readingType, readingTitle, price, onClose,
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (step < 3) {
+    
+    // Determine the next step based on reading type
+    if (step === 1) {
+      if (readingType === "love") {
+        setStep(10); // Special Relationship Status step
+      } else if (readingType === "career") {
+        setStep(20); // Special Career Status step
+      } else {
+        setStep(2);
+      }
+    } else if (step === 10 || step === 20) {
+      setStep(2);
+    } else if (step < 3) {
       nextStep();
     } else {
-      nextStep(); // Go to step 4 (Payment)
+      setStep(4); // Payment step
     }
   };
 
   const isStepValid = () => {
     if (step === 1) return formData.name.trim() !== "" && formData.starSign !== "";
+    if (step === 10) return !!formData.relationshipStatus;
+    if (step === 20) return !!formData.careerStatus;
     if (step === 2) return formData.mood !== "";
     return true;
   };
@@ -62,7 +76,7 @@ export default function ReadingForm({ readingType, readingTitle, price, onClose,
 
         <div className="mb-8 text-center">
           <span className="text-[10px] uppercase tracking-[0.2em] text-mystic-gold/60 mb-2 block">
-            Step {step} of 4
+            Personalizing Your Journey
           </span>
           <h2 className="text-2xl font-cinzel font-bold text-white">
             {readingTitle}
@@ -74,7 +88,7 @@ export default function ReadingForm({ readingType, readingTitle, price, onClose,
             <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm text-mystic-lavender/60 mb-2 font-medium">Your Name</label>
+                  <label className="block text-sm text-mystic-lavender/60 mb-2 font-medium">Your Name (Mandatory)</label>
                   <input
                     autoFocus
                     type="text"
@@ -83,18 +97,6 @@ export default function ReadingForm({ readingType, readingTitle, price, onClose,
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     className="w-full bg-mystic-purple/10 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-mystic-gold/50 transition-colors"
                     placeholder="Enter your name"
-                  />
-                  <p className="mt-1 text-[10px] text-mystic-lavender/30 italic">
-                    Hint: Use name "TEST" to enable test bypass.
-                  </p>
-                </div>
-                <div>
-                  <label className="block text-sm text-mystic-lavender/60 mb-2 font-medium">Birth Date (Optional)</label>
-                  <input
-                    type="date"
-                    value={formData.birthDate || ""}
-                    onChange={(e) => setFormData({ ...formData, birthDate: e.target.value })}
-                    className="w-full bg-mystic-purple/10 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-mystic-gold/50 transition-colors [color-scheme:dark]"
                   />
                 </div>
                 <div>
@@ -120,115 +122,7 @@ export default function ReadingForm({ readingType, readingTitle, price, onClose,
             </div>
           )}
 
-          {step === 2 && (
+          {step === 10 && (
             <div className="animate-in fade-in slide-in-from-right-4 duration-500">
               <label className="block text-sm text-mystic-lavender/60 mb-4 font-medium text-center">
-                How is your energy flowing today?
-              </label>
-              <div className="grid grid-cols-2 gap-3">
-                {MOODS.map((mood) => (
-                  <button
-                    key={mood}
-                    type="button"
-                    onClick={() => setFormData({ ...formData, mood: mood })}
-                    className={`py-3 rounded-xl border transition-all flex items-center justify-center ${
-                      formData.mood === mood
-                        ? "bg-mystic-gold/20 border-mystic-gold text-white"
-                        : "bg-white/5 border-white/5 text-mystic-lavender/40 hover:border-white/20"
-                    }`}
-                  >
-                    {mood}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {step === 3 && (
-            <div className="animate-in fade-in slide-in-from-right-4 duration-500">
-              <label className="block text-sm text-mystic-lavender/60 mb-2 font-medium">
-                Any recent signs, symbols, or context? (Optional)
-              </label>
-              <textarea
-                value={formData.recentSigns}
-                onChange={(e) => setFormData({ ...formData, recentSigns: e.target.value })}
-                className="w-full bg-mystic-purple/10 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-mystic-gold/50 transition-colors h-32 resize-none"
-                placeholder="Repeated numbers, animals, dreams..."
-              />
-              <p className="mt-2 text-[10px] text-mystic-lavender/30 italic">
-                This helps us attune the reading to your specific path.
-              </p>
-            </div>
-          )}
-
-          {step === 4 && (
-            <div className="animate-in fade-in slide-in-from-right-4 duration-500 text-center">
-              <p className="text-mystic-lavender/80 mb-6 italic">
-                To receive your personalized {readingTitle}, please complete the secure payment of {price}.
-              </p>
-              
-              {isTestMode ? (
-                <div className="space-y-4">
-                  <div className="p-4 bg-green-500/10 border border-green-500/50 rounded-xl">
-                    <p className="text-green-500 text-sm font-medium mb-1">Test Mode Active</p>
-                    <p className="text-green-500/60 text-[10px]">Name "TEST" detected. You can bypass payment for verification.</p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => onPaymentSuccess(formData)}
-                    className="w-full py-4 rounded-xl bg-green-600 text-white font-bold font-cinzel hover:bg-green-700 transition-colors shadow-lg shadow-green-900/20"
-                  >
-                    Free Test Bypass
-                  </button>
-                  <div className="relative">
-                    <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-white/5"></div></div>
-                    <div className="relative flex justify-center text-[10px] uppercase text-mystic-lavender/20 bg-mystic-dark px-2">or pay with paypal</div>
-                  </div>
-                  <PayPalButton 
-                    amount={price.replace("$", "")} 
-                    onSuccess={() => onPaymentSuccess(formData)}
-                  />
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  <PayPalButton 
-                    amount={price.replace("$", "")} 
-                    onSuccess={() => onPaymentSuccess(formData)}
-                  />
-                  <p className="text-[10px] text-mystic-lavender/30">
-                    Secure checkout via PayPal. No account required.
-                  </p>
-                </div>
-              )}
-            </div>
-          )}
-
-          <div className="flex gap-3 pt-4">
-            {step > 1 && step < 4 && (
-              <button
-                type="button"
-                onClick={prevStep}
-                className="flex-1 py-4 rounded-xl border border-white/10 text-mystic-lavender/60 hover:text-white hover:bg-white/5 transition-all font-medium"
-              >
-                Back
-              </button>
-            )}
-            {step < 4 && (
-              <button
-                type="submit"
-                disabled={!isStepValid()}
-                className={`flex-[2] py-4 rounded-xl font-cinzel font-bold tracking-widest transition-all ${
-                  isStepValid()
-                    ? "bg-gradient-to-r from-mystic-gold to-yellow-600 text-mystic-dark shadow-lg shadow-mystic-gold/20 hover:scale-[1.02] active:scale-[0.98]"
-                    : "bg-white/5 text-white/20 cursor-not-allowed"
-                }`}
-              >
-                {step === 3 ? "Proceed to Payment" : "Continue"}
-              </button>
-            )}
-          </div>
-        </form>
-      </div>
-    </div>
-  );
-}
+                Tell us about your hearts

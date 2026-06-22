@@ -4,6 +4,8 @@ export type ReadingContext = {
   starSign: string;
   mood: string;
   recentSigns?: string;
+  relationshipStatus?: "single" | "partnered";
+  careerStatus?: "employed" | "seeking";
 };
 
 export type ReadingType = "tarot" | "love" | "career" | "spirit-animal";
@@ -40,56 +42,66 @@ export const SPIRIT_ANIMALS = [
 
 export const PROMPTS: Record<ReadingType, (ctx: ReadingContext) => string> = {
   tarot: (ctx) => `
-    Please provide a 3-card Tarot reading (Past, Present, Future) for ${ctx.name}${ctx.birthDate ? ` (born ${ctx.birthDate})` : ""}, who is a ${ctx.starSign}.
-    They are currently feeling ${ctx.mood}${ctx.recentSigns ? ` and have noticed these signs: ${ctx.recentSigns}` : ""}.
+    Please provide a 3-card Tarot reading for ${ctx.name} (${ctx.starSign}).
+    Current Date: ${new Date().toLocaleDateString()}.
+    Current Mood: ${ctx.mood}.
+    Recent Signs: ${ctx.recentSigns || "None reported"}.
     
     IMPORTANT: First, explicitly name the 3 cards drawn at the very top of your response in this format:
     CARDS: [Card 1], [Card 2], [Card 3]
 
-    Then, provide a deep analysis that heavily incorporates the traits and celestial nature of their star sign (${ctx.starSign}).
+    Then, provide a deep analysis that incorporates:
+    - The current time of the month and moon cycle influence on a ${ctx.starSign}.
+    - How their ${ctx.mood} energy interacts with the cards.
     
     Structure the response as:
-    1. The Past ([Card 1]): [Deep Interpretation]
-    2. The Present ([Card 2]): [Deep Interpretation]
-    3. The Future ([Card 3]): [Deep Interpretation]
-    4. A final uplifting message tailored to their ${ctx.starSign} nature.
+    1. The Past ([Card 1]): [Interpretation]
+    2. The Present ([Card 2]): [Interpretation]
+    3. The Future ([Card 3]): [Interpretation]
+    4. A final uplifting message tailored to their ${ctx.starSign} path.
   `,
   love: (ctx) => `
-    Please provide a deep Love & Relationships reading for ${ctx.name}${ctx.birthDate ? ` (born ${ctx.birthDate})` : ""} (${ctx.starSign}).
-    Consider their current mood: ${ctx.mood}.
-    Provide insights that reflect the unique romantic challenges and strengths of a ${ctx.starSign}.
-    Focus on soul connections, Venus energy, and heartwarming insights.
+    Please provide a DEEP Love & Relationships reading for ${ctx.name} (${ctx.starSign}).
+    Relationship Status: ${ctx.relationshipStatus === "partnered" ? "In a relationship" : "Currently single"}.
+    Current Date: ${new Date().toLocaleDateString()}.
+    Mood: ${ctx.mood}.
+    
+    Incorporate the current moon phase energy and time of the month into this romantic guidance.
+    Provide insights that reflect the specific romantic strengths/challenges of a ${ctx.starSign} who is ${ctx.relationshipStatus}.
     
     Structure the response as:
-    - Current Heart Energy: [Insights]
-    - Soul Connections: [Insights]
-    - Guidance for the Path Ahead: [Insights]
+    - Current Heart Energy: [Deep Insights]
+    - Soul Connections & Moon Influence: [How the current time of month affects their ${ctx.starSign} heart]
+    - Guidance for the Path Ahead: [Specific advice for a ${ctx.relationshipStatus} person]
   `,
   career: (ctx) => `
-    Please provide an in-depth Career & Finances reading for ${ctx.name}${ctx.birthDate ? ` (born ${ctx.birthDate})` : ""} (${ctx.starSign}).
-    They are feeling ${ctx.mood} about their path.
-    Tailor the advice to the professional archetypes of a ${ctx.starSign}.
+    Please provide an in-depth Career & Finances reading for ${ctx.name} (${ctx.starSign}).
+    Career Status: ${ctx.careerStatus === "employed" ? "Currently in a career/job" : "Seeking a new path/unemployed"}.
+    Current Date: ${new Date().toLocaleDateString()}.
+    Mood: ${ctx.mood}.
+    
+    Tailor the advice to the professional archetypes of a ${ctx.starSign} during this specific time of the month and moon cycle.
     Identify potential talents and a lucky number for manifestation.
     
     Structure the response as:
     - Professional Path & Talents: [Insights]
-    - Manifesting Abundance: [Insights]
+    - Manifesting Abundance & Career Growth: [Insights for someone who is ${ctx.careerStatus}]
     - Your Lucky Manifestation Number: [Number]
     - Closing Encouragement.
   `,
   "spirit-animal": (ctx) => `
-    Please provide a profound Spirit Animal & Energy reading for ${ctx.name}${ctx.birthDate ? ` (born ${ctx.birthDate})` : ""} (${ctx.starSign}).
+    Please provide a profound Spirit Animal & Energy reading for ${ctx.name} (${ctx.starSign}).
+    Current Date: ${new Date().toLocaleDateString()}.
     Mood: ${ctx.mood}.
 
     IMPORTANT: First, explicitly name the spirit animal guide at the very top of your response in this format:
     ANIMAL: [Animal Name]
 
-    Connect their ${ctx.starSign} traits to their animal guide.
-    Identify a spirit animal guide and interpret their current aura energy.
+    Connect their ${ctx.starSign} traits to their animal guide and the current lunar energy/time of month.
     
     Structure the response as:
     - Your Spirit Animal Guide: [Animal & Detailed Meaning]
-    - Aura Energy Analysis: [Interpretation based on their ${ctx.starSign} nature]
-    - Integration Message: [How to carry this animal energy forward]
+    - Aura Energy Analysis: [Interpretation based on their ${ctx.starSign} nature and the current time of month]
+    - Integration Message: [How to carry this energy forward]
   `,
 };
