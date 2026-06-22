@@ -13,7 +13,7 @@ export default function PayPalButton({ amount, onSuccess, onError }: PayPalButto
     <div className="w-full">
       <PayPalButtons
         style={{ layout: "vertical", color: "gold", shape: "pill", label: "pay" }}
-        createOrder={(data, actions) => {
+        createOrder={(data: any, actions: any) => {
           return actions.order.create({
             intent: "CAPTURE",
             purchase_units: [
@@ -26,13 +26,13 @@ export default function PayPalButton({ amount, onSuccess, onError }: PayPalButto
             ],
           });
         }}
-        onApprove={async (data, actions) => {
+        onApprove={async (data: any, actions: any) => {
           if (actions.order) {
             const details = await actions.order.capture();
             onSuccess(details.id || "success");
           }
         }}
-        onError={(err) => {
+        onError={(err: any) => {
           console.error("PayPal Error:", err);
           if (onError) onError(err);
         }}
