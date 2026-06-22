@@ -18,42 +18,65 @@ export default function ReadingResult({ reading, title, type, onReset, onUpsell 
   const [isDownloading, setIsDownloading] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  // Parse cards if it is a tarot reading
+  // Parsing logic
   const cardsLine = reading.split("\n").find(l => l.startsWith("CARDS:"));
   const cards = cardsLine ? cardsLine.replace("CARDS:", "").split(",").map(c => c.trim()) : [];
-  const cleanReading = reading.split("\n").filter(l => !l.startsWith("CARDS:")).join("\n").trim();
+  
+  const animalLine = reading.split("\n").find(l => l.startsWith("ANIMAL:"));
+  const animal = animalLine ? animalLine.replace("ANIMAL:", "").trim() : null;
+
+  const cleanReading = reading.split("\n")
+    .filter(l => !l.startsWith("CARDS:") && !l.startsWith("ANIMAL:"))
+    .join("\n")
+    .trim();
 
   const downloadPDF = async () => {
     if (!resultRef.current) return;
     setIsDownloading(true);
 
     try {
-      // Use a more robust configuration for html2canvas
-      const canvas = await html2canvas(resultRef.current, {
+      // 1. Prepare element for capture (ensure no overflow, solid background)
+      const element = resultRef.current;
+      
+      // 2. Use html2canvas with specific settings for Vercel/Production environments
+      const canvas = await html2canvas(element, {
         backgroundColor: "#0f051d",
-        scale: 2,
+        scale: 1.5, // Reduced from 2 to prevent memory issues
         useCORS: true,
         allowTaint: true,
         logging: false,
+        width: element.offsetWidth,
+        height: element.offsetHeight,
         onclone: (clonedDoc) => {
-          // Ensure cloned elements are visible for capture
           const el = clonedDoc.querySelector("[data-capture-container]") as HTMLElement;
-          if (el) el.style.transform = "none";
+          if (el) {
+            el.style.transform = "none";
+            el.style.animation = "none";
+            el.style.margin = "0";
+            el.style.padding = "40px"; // Add consistent padding for PDF
+          }
         }
       });
 
-      const imgData = canvas.toDataURL("image/jpeg", 1.0);
+      // 3. Convert to Image
+      const imgData = canvas.toDataURL("image/jpeg", 0.9);
+      
+      // 4. Create PDF
       const pdf = new jsPDF({
         orientation: "portrait",
         unit: "px",
-        format: [canvas.width / 2, canvas.height / 2],
+        format: [canvas.width, canvas.height],
       });
 
-      pdf.addImage(imgData, "JPEG", 0, 0, canvas.width / 2, canvas.height / 2);
-      pdf.save(`MysticMate-${title.replace(/\s+/g, "-")}.pdf`);
+      pdf.addImage(imgData, "JPEG", 0, 0, canvas.width, canvas.height);
+      
+      // 5. Trigger download
+      const fileName = `MysticMate-${title.replace(/\s+/g, "-")}.pdf`;
+      pdf.save(fileName);
+      
     } catch (error) {
       console.error("PDF generation failed:", error);
-      alert("Failed to generate PDF. Please try again. Detailed error: " + (error instanceof Error ? error.message : "Unknown error"));
+      alert("PDF generation failed. Please try on a desktop browser if you are on mobile.");
     } finally {
       setIsDownloading(false);
     }
@@ -85,7 +108,7 @@ export default function ReadingResult({ reading, title, type, onReset, onUpsell 
           data-capture-container
           className="bg-mystic-dark border border-mystic-gold/20 rounded-3xl p-10 shadow-2xl shadow-mystic-purple/20"
         >
-          {/* Branding in PDF */}
+          {/* Header */}
           <div className="flex justify-between items-start mb-8 border-b border-mystic-gold/10 pb-6">
             <div>
               <h1 className="text-2xl font-cinzel font-bold text-mystic-gold tracking-widest uppercase">MysticMate</h1>
@@ -97,25 +120,42 @@ export default function ReadingResult({ reading, title, type, onReset, onUpsell 
             </div>
           </div>
 
-          {/* Visual Tarot Cards Section */}
+          {/* Visual Tarot Cards */}
           {type === "tarot" && cards.length > 0 && (
             <div className="mb-10 flex justify-center gap-4">
               {cards.map((card, idx) => (
-                <div key={idx} className="flex flex-col items-center group">
-                  <div className="w-24 h-40 rounded-lg border-2 border-mystic-gold/30 bg-mystic-purple/20 flex flex-col items-center justify-center p-2 text-center shadow-inner overflow-hidden relative">
+                <div key={idx} className="flex flex-col items-center">
+                  <div className="w-24 h-40 rounded-lg border-2 border-mystic-gold/30 bg-mystic-purple/20 flex flex-col items-center justify-center p-2 text-center shadow-inner relative overflow-hidden">
                     <div className="absolute inset-0 bg-gradient-to-br from-mystic-gold/5 to-transparent"></div>
-                    <span className="text-[10px] text-mystic-gold/60 font-cinzel mb-1 uppercase tracking-tighter">
+                    <span className="text-[9px] text-mystic-gold/60 font-cinzel mb-1 uppercase">
                       {idx === 0 ? "Past" : idx === 1 ? "Present" : "Future"}
                     </span>
-                    <div className="w-10 h-10 rounded-full border border-mystic-gold/20 flex items-center justify-center mb-2">
-                      <span className="text-xl text-mystic-gold">✧</span>
+                    <div className="w-8 h-8 rounded-full border border-mystic-gold/20 flex items-center justify-center mb-2">
+                      <span className="text-lg text-mystic-gold">✧</span>
                     </div>
-                    <span className="text-[11px] font-cinzel text-white font-bold leading-tight uppercase">
+                    <span className="text-[10px] font-cinzel text-white font-bold leading-tight uppercase">
                       {card}
                     </span>
                   </div>
                 </div>
               ))}
+            </div>
+          )}
+
+          {/* Visual Spirit Animal */}
+          {type === "spirit-animal" && animal && (
+            <div className="mb-10 flex flex-col items-center">
+              <div className="w-48 h-48 rounded-full border-2 border-mystic-gold/30 bg-mystic-purple/10 flex flex-col items-center justify-center p-6 text-center shadow-2xl relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-b from-mystic-gold/5 to-transparent"></div>
+                <div className="text-5xl mb-3 drop-shadow-glow">🐾</div>
+                <span className="text-[10px] text-mystic-gold/60 font-cinzel mb-1 uppercase tracking-[0.2em]">Your Guide</span>
+                <h3 className="text-xl font-cinzel text-white font-bold uppercase tracking-tight">{animal}</h3>
+                <div className="absolute bottom-4 left-0 right-0 flex justify-center">
+                  <div className="flex gap-1">
+                    {[1,2,3].map(i => <span key={i} className="w-1 h-1 rounded-full bg-mystic-gold/40"></span>)}
+                  </div>
+                </div>
+              </div>
             </div>
           )}
 
@@ -127,7 +167,7 @@ export default function ReadingResult({ reading, title, type, onReset, onUpsell 
             ))}
           </div>
 
-          {/* Footer in PDF */}
+          {/* Footer */}
           <div className="mt-10 pt-8 border-t border-mystic-gold/10 text-center">
             <p className="text-[10px] text-mystic-lavender/30 uppercase tracking-widest mb-2">
               © MysticMate - Copyright Not For Resale
@@ -162,7 +202,6 @@ export default function ReadingResult({ reading, title, type, onReset, onUpsell 
         </div>
       </div>
 
-      {/* Upsell Section */}
       <div className="bg-mystic-purple/20 backdrop-blur-sm border border-mystic-gold/10 rounded-3xl p-8 text-center animate-in slide-in-from-bottom-8 fade-in duration-1000 delay-500">
         <h3 className="text-xl font-cinzel text-white mb-2">Deepen Your Journey</h3>
         <p className="text-sm text-mystic-lavender/60 mb-6">

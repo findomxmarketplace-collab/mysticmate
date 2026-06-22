@@ -33,6 +33,11 @@ export const TAROT_CARDS = [
   "Knight of Pentacles", "Queen of Pentacles", "King of Pentacles"
 ];
 
+export const SPIRIT_ANIMALS = [
+  "Wolf", "Owl", "Bear", "Hawk", "Dragonfly", "Butterfly", "Stag", "Swan", 
+  "Fox", "Lion", "Tiger", "Elephant", "Dolphin", "Eagle", "Hummingbird", "Snake"
+];
+
 export const PROMPTS: Record<ReadingType, (ctx: ReadingContext) => string> = {
   tarot: (ctx) => `
     Please provide a 3-card Tarot reading (Past, Present, Future) for ${ctx.name}${ctx.birthDate ? ` (born ${ctx.birthDate})` : ""}, who is a ${ctx.starSign}.
@@ -75,12 +80,16 @@ export const PROMPTS: Record<ReadingType, (ctx: ReadingContext) => string> = {
   "spirit-animal": (ctx) => `
     Please provide a profound Spirit Animal & Energy reading for ${ctx.name}${ctx.birthDate ? ` (born ${ctx.birthDate})` : ""} (${ctx.starSign}).
     Mood: ${ctx.mood}.
+
+    IMPORTANT: First, explicitly name the spirit animal guide at the very top of your response in this format:
+    ANIMAL: [Animal Name]
+
     Connect their ${ctx.starSign} traits to their animal guide.
     Identify a spirit animal guide and interpret their current aura energy.
     
     Structure the response as:
-    - Your Spirit Animal Guide: [Animal & Meaning]
-    - Aura Energy Analysis: [Interpretation]
-    - Integration Message: [How to carry this energy forward]
+    - Your Spirit Animal Guide: [Animal & Detailed Meaning]
+    - Aura Energy Analysis: [Interpretation based on their ${ctx.starSign} nature]
+    - Integration Message: [How to carry this animal energy forward]
   `,
 };

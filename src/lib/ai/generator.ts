@@ -1,4 +1,4 @@
-import { PROMPTS, ReadingContext, ReadingType, SYSTEM_PROMPT, TAROT_CARDS } from "./prompts";
+import { PROMPTS, ReadingContext, ReadingType, SYSTEM_PROMPT, TAROT_CARDS, SPIRIT_ANIMALS } from "./prompts";
 
 const MOCK_DELAY = 2000;
 
@@ -19,6 +19,21 @@ The stars have aligned for you, ${context.name}. As a ${context.starSign}, your 
 3. The Future (${cards[2]}): Looking ahead, a transformation is brewing. For a ${context.starSign}, this will manifest as a breakthrough in your personal clarity before the next lunar cycle.
 
 Your ${context.starSign} heart is a vessel of light. Continue to trust the signs you see around you, ${context.name}. The universe whispers that your path is secure.
+    `.trim();
+  }
+
+  if (type === "spirit-animal") {
+    const animal = SPIRIT_ANIMALS[Math.floor(Math.random() * SPIRIT_ANIMALS.length)];
+    return `
+ANIMAL: ${animal}
+
+A deep connection has been formed between your ${context.starSign} essence and the spirit realm.
+
+- Your Spirit Animal Guide: The ${animal}. This guide has appeared to mirror your current energy of being ${context.mood}. The ${animal} represents a powerful alignment with your natural ${context.starSign} instincts, offering you the strength to navigate your current transitions with wisdom.
+- Aura Energy Analysis: Your aura, influenced by your ${context.starSign} nature, is currently vibrating with a high-frequency light. This suggests that you are entering a phase of profound spiritual reception.
+- Integration Message: Carry the spirit of the ${animal} with you. When you feel ${context.mood}, remember the quiet power and steady gaze of your guide.
+
+You are never alone on this path, ${context.name}.
     `.trim();
   }
 
