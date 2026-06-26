@@ -4,91 +4,98 @@ export type ReadingContext = {
   starSign: string;
   mood: string;
   recentSigns?: string;
-  relationshipStatus?: "single" | "partnered";
-  careerStatus?: "employed" | "seeking";
-  lifeGoals?: string;
 };
 
-export type ReadingType = "tarot" | "love" | "career" | "spirit-animal" | "spell" | "crystal";
+export type ReadingType = 
+  | 'tarot' 
+  | 'love' 
+  | 'career' 
+  | 'spirit-animal' 
+  | 'spell' 
+  | 'crystal-guide' 
+  | 'crystal-ball' 
+  | 'bundle';
 
-export const SYSTEM_PROMPT = `You are MysticMate, a compassionate and uplifting spiritual guide. 
-Your goal is to provide G-rated, encouraging, and honest readings and spiritual guidance. 
+export const SYSTEM_PROMPT = `You are MysticMate, a compassionate and uplifting spiritual guide.
+Your goal is to provide G-rated, encouraging, and honest readings.
 Avoid dark or scary predictions. Focus on empowerment, potential, and positive energy.
 Always speak in a mystical yet accessible tone.
 All content must be original and copyright-protected by MysticMate.`;
 
-export const TAROT_CARDS = [
-  "The Fool", "The Magician", "The High Priestess", "The Empress", "The Emperor",
-  "The Hierophant", "The Lovers", "The Chariot", "Strength", "The Hermit",
-  "Wheel of Fortune", "Justice", "The Hanged Man", "Death", "Temperance",
-  "The Devil", "The Tower", "The Star", "The Moon", "The Sun",
-  "Judgement", "The World", "Ace of Wands", "Two of Wands", "Three of Wands",
-  "Four of Wands", "Five of Wands", "Six of Wands", "Seven of Wands", "Eight of Wands",
-  "Nine of Wands", "Ten of Wands", "Page of Wands", "Knight of Wands", "Queen of Wands",
-  "King of Wands", "Ace of Cups", "Two of Cups", "Three of Cups", "Four of Cups",
-  "Five of Cups", "Six of Cups", "Seven of Cups", "Eight of Cups", "Nine of Cups",
-  "Ten of Cups", "Page of Cups", "Knight of Cups", "Queen of Cups", "King of Cups",
-  "Ace of Swords", "Two of Swords", "Three of Swords", "Four of Swords", "Five of Swords",
-  "Six of Swords", "Seven of Swords", "Eight of Swords", "Nine of Swords", "Ten of Swords",
-  "Page of Swords", "Knight of Swords", "Queen of Swords", "King of Swords", "Ace of Pentacles",
-  "Two of Pentacles", "Three of Pentacles", "Four of Pentacles", "Five of Pentacles", "Six of Pentacles",
-  "Seven of Pentacles", "Eight of Pentacles", "Nine of Pentacles", "Ten of Pentacles", "Page of Pentacles",
-  "Knight of Pentacles", "Queen of Pentacles", "King of Pentacles"
-];
-
-export const SPIRIT_ANIMALS = [
-  "Wolf", "Owl", "Bear", "Hawk", "Dragonfly", "Butterfly", "Stag", "Swan", 
-  "Fox", "Lion", "Tiger", "Elephant", "Dolphin", "Eagle", "Hummingbird", "Snake"
-];
-
 export const PROMPTS: Record<ReadingType, (ctx: ReadingContext) => string> = {
   tarot: (ctx) => `
-    Provide a 3-card Tarot reading for ${ctx.name} (${ctx.starSign}).
-    Current Date: ${new Date().toLocaleDateString()}. Moon Influence: Active Cycle.
-    Mood: ${ctx.mood}. Signs: ${ctx.recentSigns || "None"}.
-    
-    IMPORTANT: Name the 3 cards at the top: CARDS: [Card 1], [Card 2], [Card 3]
-    Incorporate moon phase and ${ctx.starSign} traits.
+    Please provide a 3-card Tarot reading (Past, Present, Future) for ${ctx.name}${ctx.birthDate ? ` (born ${ctx.birthDate})` : ""}, who is a ${ctx.starSign}.
+    They are currently feeling ${ctx.mood}${ctx.recentSigns ? ` and have noticed these signs: ${ctx.recentSigns}` : ''}.
+    Structure the response as:
+    1. The Past: [Interpretation]
+    2. The Present: [Interpretation]
+    3. The Future: [Interpretation]
+    4. A final uplifting message.
   `,
   love: (ctx) => `
-    Provide a DEEP Love & Relationships reading for ${ctx.name} (${ctx.starSign}).
-    Status: ${ctx.relationshipStatus}. Date: ${new Date().toLocaleDateString()}.
-    Mood: ${ctx.mood}.
-    
-    Incorporate moon phase and romantic strengths of ${ctx.starSign}.
+    Please provide a Love & Relationships reading for ${ctx.name}${ctx.birthDate ? ` (born ${ctx.birthDate})` : ""}, a ${ctx.starSign}.
+    Consider their current mood: ${ctx.mood}.
+    Focus on soul connections, Venus energy, and heartwarming insights.
+    Structure the response as:
+    - Current Heart Energy: [Insights]
+    - Soul Connections: [Insights]
+    - Guidance for the Path Ahead: [Insights]
   `,
   career: (ctx) => `
-    Provide an in-depth Career reading for ${ctx.name} (${ctx.starSign}).
-    Status: ${ctx.careerStatus}. Date: ${new Date().toLocaleDateString()}.
-    Mood: ${ctx.mood}.
-    
-    Incorporate current month energy and ${ctx.starSign} archetypes.
+    Please provide a Career & Finances reading for ${ctx.name}${ctx.birthDate ? ` (born ${ctx.birthDate})` : ""}, a ${ctx.starSign}.
+    They are feeling ${ctx.mood} about their path.
+    Identify potential talents and a lucky number for manifestation.
+    Structure the response as:
+    - Professional Path & Talents: [Insights]
+    - Manifesting Abundance: [Insights]
+    - Your Lucky Manifestation Number: [Number]
+    - Closing Encouragement.
   `,
-  "spirit-animal": (ctx) => `
-    Provide a Spirit Animal reading for ${ctx.name} (${ctx.starSign}).
-    Date: ${new Date().toLocaleDateString()}.
-    IMPORTANT: Name animal at top: ANIMAL: [Name]
+  'spirit-animal': (ctx) => `
+    Please provide a Spirit Animal & Energy reading for ${ctx.name}${ctx.birthDate ? ` (born ${ctx.birthDate})` : ""}, a ${ctx.starSign}.
+    Mood: ${ctx.mood}.
+    Identify a spirit animal guide and interpret their current aura energy.
+    Structure the response as:
+    - Your Spirit Animal Guide: [Animal & Meaning]
+    - Aura Energy Analysis: [Interpretation]
+    - Integration Message: [How to carry this energy forward]
   `,
   spell: (ctx) => `
-    Generate a personalized, uplifting, AI-designed "White Magic" spell for ${ctx.name} (${ctx.starSign}).
-    Based on their mood: ${ctx.mood} and the current moon phase (${new Date().toLocaleDateString()}).
-    The spell should be based on traditional positive witchcraft but designed for modern spiritual use.
-    
-    Structure:
-    - Spell Name: [A mystical title]
-    - Components Needed: [Simple household or natural items]
-    - The Ritual: [Steps to perform]
-    - The Incantation: [Empowering words to speak]
+    Please create a personalized AI-generated spell for ${ctx.name}${ctx.birthDate ? ` (born ${ctx.birthDate})` : ""}, a ${ctx.starSign}.
+    Based on their mood of ${ctx.mood}, create a positive, G-rated intention or ritual.
+    Structure the response as:
+    - Your Personal Intention: [A short, powerful affirmation]
+    - The Ritual: [Simple steps using common items like candles or water]
+    - The Incantation: [A rhyming or rhythmic verse to speak]
   `,
-  crystal: (ctx) => `
-    Suggest a specific Crystal and provide a deep energetic guide for ${ctx.name} (${ctx.starSign}).
-    Life Goals: ${ctx.lifeGoals}. Mood: ${ctx.mood}.
-    
-    IMPORTANT: Name the crystal at top: CRYSTAL: [Name]
-    
-    Structure:
-    - Your Suggested Crystal: [Name & Origins]
-    - Energetic Alignment: [How it supports their ${ctx.starSign} nature and goals]
-    - Usage Guide: [How to work with this stone]
+  'crystal-guide': (ctx) => `
+    Please provide a personalized Crystal Guide for ${ctx.name}${ctx.birthDate ? ` (born ${ctx.birthDate})` : ""}, a ${ctx.starSign}.
+    Based on their current energy (${ctx.mood}), recommend crystals for support.
+    Structure the response as:
+    - Your Core Crystal: [Crystal Name & Why it fits]
+    - How to Use Your Crystal: [Simple practice]
+    - Companion Stones: [2-3 other crystals]
+  `,
+  'crystal-ball': (ctx) => `
+    Please provide a Crystal Ball 'Fate' reading for ${ctx.name}${ctx.birthDate ? ` (born ${ctx.birthDate})` : ""}.
+    As they gaze into the crystal ball with their current mood of ${ctx.mood}, what glimpses of their destiny appear?
+    Focus on a single, powerful 'fate' message that feels destined.
+    Structure the response as:
+    - The Vision: [Description of what is seen in the crystal ball]
+    - Your Destined Path: [Interpretation of the fate message]
+    - A final mystical blessing.
+  `,
+  bundle: (ctx) => `
+    Please provide a comprehensive Spiritual Bundle reading for ${ctx.name}${ctx.birthDate ? ` (born ${ctx.birthDate})` : ""}, a ${ctx.starSign}.
+    Their current mood is ${ctx.mood}${ctx.recentSigns ? ` and they've noticed these signs: ${ctx.recentSigns}` : ''}.
+    Combine insights from all our mystical arts into one grand reading:
+    1. Tarot (Past, Present, Future)
+    2. Love & Relationships (Heart energy and connections)
+    3. Career & Finances (Talents and manifestation)
+    4. Spirit Animal & Aura Analysis
+    5. Personalized Spell & Ritual
+    6. Crystal Guide
+    7. Crystal Ball Vision (A glimpse of fate)
+    Ensure the reading flows beautifully as a single cohesive experience.
   `,
 };

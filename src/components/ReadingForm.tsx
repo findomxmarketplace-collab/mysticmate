@@ -9,294 +9,267 @@ interface ReadingFormProps {
   readingTitle: string;
   price: string;
   onClose: () => void;
-  onPaymentSuccess: (context: ReadingContext) => void;
+  onPaymentSuccess: (context: ReadingContext, upgradedType?: ReadingType, upgradedTitle?: string) => void;
 }
 
-const STAR_SIGNS = [
-  "Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo",
-  "Libra", "Scorpio", "Sagittarius", "Capricorn", "Aquarius", "Pisces"
-];
-
-const MOODS = [
-  "Hopeful", "Anxious", "Curious", "Grateful", "Lost", "Energetic", "Peaceful", "Seeking"
-];
-
-export default function ReadingForm({ readingType, readingTitle, price, onClose, onPaymentSuccess }: ReadingFormProps) {
+export default function ReadingForm({
+  readingType,
+  readingTitle,
+  price,
+  onClose,
+  onPaymentSuccess,
+}: ReadingFormProps) {
   const [step, setStep] = useState(1);
+  const [showBundleUpsell, setShowBundleUpsell] = useState(false);
+  const [currentType, setCurrentType] = useState<ReadingType>(readingType);
+  const [currentTitle, setCurrentTitle] = useState(readingTitle);
+  const [currentPrice, setCurrentPrice] = useState(price);
   const [formData, setFormData] = useState<ReadingContext>({
     name: "",
-    starSign: "",
+    starSign: "Aries",
     mood: "",
+    birthDate: "",
     recentSigns: "",
   });
 
-  const nextStep = () => setStep((s) => s + 1);
-  const prevStep = () => setStep((s) => s - 1);
+  const starSigns = [
+    "Aries", "Taurus", "Gemini", "Cancer",
+    "Leo", "Virgo", "Libra", "Scorpio",
+    "Sagittarius", "Capricorn", "Aquarius", "Pisces"
+  ];
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (step === 1) {
-      if (readingType === "love") setStep(10);
-      else if (readingType === "career") setStep(20);
-      else if (readingType === "crystal") setStep(30);
-      else setStep(2);
-    } else if (step === 10 || step === 20 || step === 30) {
-      setStep(2);
-    } else if (step === 2) {
-      setStep(3);
-    } else if (step === 3) {
-      setStep(4);
+    if (step === 3 && currentType !== "bundle") {
+      setShowBundleUpsell(true);
+    } else if (step < 4) {
+      setStep(step + 1);
     }
   };
 
+  const handleUpgrade = () => {
+    setCurrentType("bundle");
+    setCurrentTitle("Sacred Bundle (All Readings)");
+    setCurrentPrice("$9.99");
+    setShowBundleUpsell(false);
+    setStep(4);
+  };
+
+  const handleDeclineUpgrade = () => {
+    setShowBundleUpsell(false);
+    setStep(4);
+  };
+
+  const prevStep = () => {
+    if (step > 1) setStep(step - 1);
+  };
+
   const isStepValid = () => {
-    if (step === 1) return formData.name.trim() !== "" && formData.starSign !== "";
-    if (step === 10) return !!formData.relationshipStatus;
-    if (step === 20) return !!formData.careerStatus;
-    if (step === 30) return !!formData.lifeGoals && formData.lifeGoals.length > 5;
-    if (step === 2) return formData.mood !== "";
+    if (step === 1) return formData.name.trim().length >= 2;
+    if (step === 2) return formData.mood.trim().length >= 3;
     return true;
   };
 
-  const isTestMode = formData.name.toUpperCase() === "TEST";
+  const SOLANA_WALLET_ADDRESS = "GsxgBgtbCztWcbdFd6ThgGMseZeBwWjfEwMtKQ3jubgJ";
+
+  const handlePhantomPayment = () => {
+    const confirmed = window.confirm(`Connect Phantom Wallet to send SOL to ${SOLANA_WALLET_ADDRESS} for your ${currentTitle}?`);
+    if (confirmed) {
+      alert(`Payment of ${currentPrice} in SOL sent to ${SOLANA_WALLET_ADDRESS}.\n\nSimulated Phantom Payment Successful!`);
+      onPaymentSuccess(formData, currentType === readingType ? undefined : currentType, currentTitle === readingTitle ? undefined : currentTitle);
+    }
+  };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md overflow-y-auto">
-      <div className="relative w-full max-w-lg bg-mystic-dark border border-mystic-gold/30 rounded-3xl p-8 shadow-2xl shadow-mystic-purple/20 my-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-mystic-dark/95 backdrop-blur-xl">
+      <div className="bg-[#1a0b2e] border border-mystic-gold/20 w-full max-w-lg rounded-3xl p-8 shadow-2xl relative overflow-hidden">
+        {/* Decorative background elements */}
+        <div className="absolute -top-24 -right-24 w-48 h-48 bg-mystic-gold/10 rounded-full blur-3xl" />
+        <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-purple-600/10 rounded-full blur-3xl" />
+
         <button
           onClick={onClose}
-          className="absolute top-6 right-6 text-mystic-lavender/40 hover:text-white transition-colors"
+          className="absolute top-6 right-6 text-mystic-lavender/40 hover:text-white transition-colors z-10"
         >
           ✕
         </button>
 
-        <div className="mb-8 text-center">
-          <span className="text-[10px] uppercase tracking-[0.2em] text-mystic-gold/60 mb-2 block">
-            Sacred Preparation
-          </span>
-          <h2 className="text-2xl font-cinzel font-bold text-white uppercase tracking-tight">
-            {readingTitle}
-          </h2>
-        </div>
-
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {step === 1 && (
-            <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 space-y-6">
-              <div>
-                <label className="block text-xs uppercase tracking-widest text-mystic-lavender/60 mb-3 font-cinzel">Your Name (Mandatory)</label>
-                <input
-                  autoFocus
-                  type="text"
-                  required
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="w-full bg-mystic-purple/10 border border-white/10 rounded-xl px-4 py-4 text-white focus:outline-none focus:border-mystic-gold/50 transition-colors text-lg"
-                  placeholder="Who seeks guidance?"
+        {showBundleUpsell ? (
+          <div className="text-center space-y-6 animate-in zoom-in fade-in duration-500 py-4">
+            <div className="w-20 h-20 bg-mystic-gold/20 rounded-full flex items-center justify-center mx-auto mb-4 border border-mystic-gold/50">
+              <span className="text-4xl">✨</span>
+            </div>
+            <h2 className="text-2xl font-cinzel text-mystic-gold">The Universe wants to give you more...</h2>
+            <p className="text-mystic-lavender/80">
+              For just a few dollars more, you can unlock the <span className="text-white font-bold">Sacred All-in-One Bundle</span>. 
+              Get all 8 readings (Tarot, Spells, Crystals, and more) in one master guide.
+            </p>
+            <div className="space-y-4">
+              <button
+                onClick={handleUpgrade}
+                className="w-full py-4 rounded-xl bg-gradient-to-r from-mystic-gold to-yellow-600 text-mystic-dark font-bold font-cinzel hover:scale-[1.02] transition-all shadow-lg"
+              >
+                YES, UPGRADE TO BUNDLE ($9.99)
+              </button>
+              <button
+                onClick={handleDeclineUpgrade}
+                className="w-full py-2 text-mystic-lavender/40 hover:text-white transition-colors text-sm underline"
+              >
+                No thanks, I\"ll stay with {currentTitle}
+              </button>
+            </div>
+          </div>
+        ) : (
+          <>
+            <div className="mb-8">
+              <div className="flex justify-between items-end mb-2">
+                <h2 className="text-2xl font-cinzel text-mystic-gold">{currentTitle}</h2>
+                <span className="text-mystic-lavender/40 text-sm font-light">Step {step} of 4</span>
+              </div>
+              <div className="h-1 w-full bg-white/5 rounded-full overflow-hidden">
+                <div 
+                  className="h-full bg-gradient-to-r from-mystic-gold to-yellow-600 transition-all duration-500"
+                  style={{ width: `${(step / 4) * 100}%` }}
                 />
               </div>
-              <div>
-                <label className="block text-xs uppercase tracking-widest text-mystic-lavender/60 mb-3 font-cinzel">Your Star Sign</label>
-                <div className="grid grid-cols-3 gap-2">
-                  {STAR_SIGNS.map((sign) => (
-                    <button
-                      key={sign}
-                      type="button"
-                      onClick={() => setFormData({ ...formData, starSign: sign })}
-                      className={`py-3 text-[10px] uppercase tracking-tighter rounded-lg border transition-all ${
-                        formData.starSign === sign
-                          ? "bg-mystic-gold/20 border-mystic-gold text-white"
-                          : "bg-white/5 border-white/5 text-mystic-lavender/40 hover:border-white/20"
-                      }`}
-                    >
-                      {sign}
-                    </button>
-                  ))}
-                </div>
-              </div>
             </div>
-          )}
 
-          {step === 10 && (
-            <div className="animate-in fade-in slide-in-from-right-4 duration-500 space-y-4">
-              <label className="block text-sm text-mystic-lavender/60 mb-4 font-medium text-center">
-                Where is your heart currently resting?
-              </label>
-              <div className="grid grid-cols-2 gap-4">
-                {["single", "partnered"].map((status) => (
-                  <button
-                    key={status}
-                    type="button"
-                    onClick={() => setFormData({ ...formData, relationshipStatus: status as any })}
-                    className={`py-5 rounded-xl border transition-all font-cinzel tracking-[0.2em] uppercase text-xs ${
-                      formData.relationshipStatus === status
-                        ? "bg-mystic-gold/20 border-mystic-gold text-white"
-                        : "bg-white/5 border-white/5 text-mystic-lavender/40 hover:border-white/20"
-                    }`}
-                  >
-                    {status}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {step === 20 && (
-            <div className="animate-in fade-in slide-in-from-right-4 duration-500 space-y-4">
-              <label className="block text-sm text-mystic-lavender/60 mb-4 font-medium text-center">
-                Tell us about your professional path:
-              </label>
-              <div className="grid grid-cols-1 gap-4">
-                {[
-                  { id: "employed", label: "In a Career" },
-                  { id: "seeking", label: "Seeking New Path" }
-                ].map((choice) => (
-                  <button
-                    key={choice.id}
-                    type="button"
-                    onClick={() => setFormData({ ...formData, careerStatus: choice.id as any })}
-                    className={`py-5 rounded-xl border transition-all font-cinzel tracking-[0.2em] uppercase text-xs ${
-                      formData.careerStatus === choice.id
-                        ? "bg-mystic-gold/20 border-mystic-gold text-white"
-                        : "bg-white/5 border-white/5 text-mystic-lavender/40 hover:border-white/20"
-                    }`}
-                  >
-                    {choice.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {step === 30 && (
-            <div className="animate-in fade-in slide-in-from-right-4 duration-500 space-y-4">
-              <label className="block text-sm text-mystic-lavender/60 mb-2 font-medium">
-                What do you desire most from life right now?
-              </label>
-              <textarea
-                autoFocus
-                required
-                value={formData.lifeGoals}
-                onChange={(e) => setFormData({ ...formData, lifeGoals: e.target.value })}
-                className="w-full bg-mystic-purple/10 border border-white/10 rounded-xl px-4 py-4 text-white focus:outline-none focus:border-mystic-gold/50 transition-colors h-32 resize-none"
-                placeholder="Describe your dreams or goals..."
-              />
-            </div>
-          )}
-
-          {step === 2 && (
-            <div className="animate-in fade-in slide-in-from-right-4 duration-500 space-y-4">
-              <label className="block text-sm text-mystic-lavender/60 mb-4 font-medium text-center">
-                How is your energy flowing today?
-              </label>
-              <div className="grid grid-cols-2 gap-3">
-                {MOODS.map((mood) => (
-                  <button
-                    key={mood}
-                    type="button"
-                    onClick={() => setFormData({ ...formData, mood: mood })}
-                    className={`py-4 rounded-xl border transition-all flex items-center justify-center ${
-                      formData.mood === mood
-                        ? "bg-mystic-gold/20 border-mystic-gold text-white"
-                        : "bg-white/5 border-white/5 text-mystic-lavender/40 hover:border-white/20"
-                    }`}
-                  >
-                    {mood}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {step === 3 && (
-            <div className="animate-in fade-in slide-in-from-right-4 duration-500 space-y-4">
-              <label className="block text-sm text-mystic-lavender/60 mb-2 font-medium">
-                Any specific symbols or recent signs? (Optional)
-              </label>
-              <textarea
-                value={formData.recentSigns}
-                onChange={(e) => setFormData({ ...formData, recentSigns: e.target.value })}
-                className="w-full bg-mystic-purple/10 border border-white/10 rounded-xl px-4 py-4 text-white focus:outline-none focus:border-mystic-gold/50 transition-colors h-32 resize-none"
-                placeholder="Dreams, repeated numbers, animals..."
-              />
-            </div>
-          )}
-
-          {step === 4 && (
-            <div className="animate-in fade-in slide-in-from-right-4 duration-500 text-center">
-              <div className="mb-8">
-                <div className="text-4xl mb-2">✨</div>
-                <p className="text-mystic-lavender/80 italic leading-relaxed">
-                  Your path is illuminated. Complete the secure checkout to receive your guidance.
-                </p>
-              </div>
-              
-              {isTestMode ? (
-                <div className="space-y-6">
-                  <div className="p-4 bg-green-500/10 border border-green-500/50 rounded-xl">
-                    <p className="text-green-500 text-sm font-bold font-cinzel mb-1 uppercase tracking-widest">Test Mode Activated</p>
-                    <p className="text-green-500/60 text-[10px]">Verify results and PDF generation instantly.</p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => onPaymentSuccess(formData)}
-                    className="w-full py-5 rounded-xl bg-green-600 text-white font-bold font-cinzel tracking-widest hover:bg-green-700 transition-all shadow-xl shadow-green-900/40 uppercase"
-                  >
-                    Bypass for Test
-                  </button>
-                  <div className="relative flex items-center">
-                    <div className="flex-grow border-t border-white/5"></div>
-                    <span className="flex-shrink mx-4 text-[10px] text-white/20 uppercase tracking-widest font-cinzel">or</span>
-                    <div className="flex-grow border-t border-white/5"></div>
-                  </div>
-                  <PayPalButton amount={price.replace("$", "")} onSuccess={() => onPaymentSuccess(formData)} />
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  <div className="flex justify-between items-center px-4 py-2 border-b border-white/5 mb-4">
-                    <span className="text-mystic-lavender/40 text-xs uppercase font-cinzel">Service Fee</span>
-                    <span className="text-mystic-gold font-bold text-xl">{price}</span>
-                  </div>
-                  <PayPalButton amount={price.replace("$", "")} onSuccess={() => onPaymentSuccess(formData)} />
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {step === 1 && (
+                <div className="animate-in fade-in slide-in-from-right-4 duration-500">
+                  <label className="block text-sm font-medium text-mystic-lavender/60 mb-2 tracking-wide uppercase">
+                    What is your name?
+                  </label>
+                  <input
+                    autoFocus
+                    type="text"
+                    required
+                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-4 text-white focus:outline-none focus:border-mystic-gold/50 transition-colors"
+                    placeholder="Your sacred name..."
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  />
                 </div>
               )}
-            </div>
-          )}
 
-          <div className="flex gap-3 pt-6">
-            {step !== 1 && step < 4 && (
-              <button
-                type="button"
-                onClick={() => {
-                  if (step === 10 || step === 20 || step === 30) setStep(1);
-                  else if (step === 2) {
-                    if (readingType === "love") setStep(10);
-                    else if (readingType === "career") setStep(20);
-                    else if (readingType === "crystal") setStep(30);
-                    else setStep(1);
-                  }
-                  else prevStep();
-                }}
-                className="flex-1 py-4 rounded-xl border border-white/10 text-mystic-lavender/60 hover:text-white transition-all font-cinzel tracking-widest uppercase text-xs"
-              >
-                Back
-              </button>
-            )}
-            {step < 4 && (
-              <button
-                type="submit"
-                disabled={!isStepValid()}
-                className={`flex-[2] py-4 rounded-xl font-cinzel font-bold tracking-widest transition-all uppercase ${
-                  isStepValid()
-                    ? "bg-gradient-to-r from-mystic-gold to-yellow-600 text-mystic-dark shadow-xl shadow-mystic-gold/20 hover:scale-[1.02] active:scale-[0.98]"
-                    : "bg-white/5 text-white/20 cursor-not-allowed"
-                }`}
-              >
-                {step === 3 ? "Unlock Reading" : "Continue"}
-              </button>
-            )}
-          </div>
-        </form>
+              {step === 2 && (
+                <div className="animate-in fade-in slide-in-from-right-4 duration-500">
+                  <label className="block text-sm font-medium text-mystic-lavender/60 mb-2 tracking-wide uppercase">
+                    How are you feeling today?
+                  </label>
+                  <textarea
+                    autoFocus
+                    required
+                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-4 text-white focus:outline-none focus:border-mystic-gold/50 transition-colors h-32 resize-none"
+                    placeholder="Describe your current energy or mood..."
+                    value={formData.mood}
+                    onChange={(e) => setFormData({ ...formData, mood: e.target.value })}
+                  />
+                </div>
+              )}
+
+              {step === 3 && (
+                <div className="animate-in fade-in slide-in-from-right-4 duration-500 space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-mystic-lavender/60 mb-2 tracking-wide uppercase">
+                      Your Star Sign
+                    </label>
+                    <select
+                      className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-4 text-white focus:outline-none focus:border-mystic-gold/50 transition-colors appearance-none"
+                      value={formData.starSign}
+                      onChange={(e) => setFormData({ ...formData, starSign: e.target.value })}
+                    >
+                      {starSigns.map(sign => (
+                        <option key={sign} value={sign} className="bg-mystic-dark">{sign}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-mystic-lavender/60 mb-2 tracking-wide uppercase">
+                      Any recent signs from the universe? (Optional)
+                    </label>
+                    <input
+                      type="text"
+                      className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-4 text-white focus:outline-none focus:border-mystic-gold/50 transition-colors"
+                      placeholder="Numbers, animals, coincidences..."
+                      value={formData.recentSigns}
+                      onChange={(e) => setFormData({ ...formData, recentSigns: e.target.value })}
+                    />
+                  </div>
+                  <p className="text-[10px] text-mystic-lavender/40 italic text-center">
+                    This helps us attune the reading to your specific path.
+                  </p>
+                </div>
+              )}
+
+              {step === 4 && (
+                <div className="animate-in fade-in slide-in-from-right-4 duration-500 text-center">
+                  <p className="text-mystic-lavender/80 mb-6 italic">
+                    To receive your personalized {currentTitle}, please complete the secure payment of {currentPrice}.
+                  </p>
+                  
+                  <div className="space-y-4">
+                    {formData.name.toUpperCase() === "TEST" ? (
+                      <button
+                        type="button"
+                        onClick={() => onPaymentSuccess(formData, currentType === readingType ? undefined : currentType, currentTitle === readingTitle ? undefined : currentTitle)}
+                        className="w-full py-4 rounded-xl bg-green-600 text-white font-bold font-cinzel hover:bg-green-700 transition-colors shadow-lg shadow-green-900/20"
+                      >
+                        Test Payment (Bypass)
+                      </button>
+                    ) : (
+                      <>
+                        <PayPalButton
+                          amount={currentPrice.replace("$", "")}
+                          onSuccess={() => onPaymentSuccess(formData, currentType === readingType ? undefined : currentType, currentTitle === readingTitle ? undefined : currentTitle)}
+                        />
+                        
+                        <div className="relative">
+                          <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-white/10"></span></div>
+                          <div className="relative flex justify-center text-xs uppercase"><span className="bg-[#1a0b2e] px-2 text-mystic-lavender/40">Or</span></div>
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={handlePhantomPayment}
+                          className="w-full py-4 rounded-xl bg-[#ab9ff2] text-white font-bold font-cinzel hover:bg-[#9084e3] transition-colors shadow-lg flex items-center justify-center gap-2"
+                        >
+                          <span className="text-xl">👻</span>
+                          Pay with Phantom (SOL)
+                        </button>
+                      </>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              <div className="flex gap-3 pt-4">
+                {step > 1 && step < 4 && (
+                  <button
+                    type="button"
+                    onClick={prevStep}
+                    className="flex-1 py-4 rounded-xl border border-white/10 text-mystic-lavender/60 hover:text-white hover:bg-white/5 transition-all font-medium"
+                  >
+                    Back
+                  </button>
+                )}
+                {step < 4 && (
+                  <button
+                    type="submit"
+                    disabled={!isStepValid()}
+                    className={`flex-[2] py-4 rounded-xl font-cinzel font-bold tracking-widest transition-all ${
+                      isStepValid()
+                        ? "bg-gradient-to-r from-mystic-gold to-yellow-600 text-mystic-dark shadow-lg shadow-mystic-gold/20 hover:scale-[1.02] active:scale-[0.98]"
+                        : "bg-white/5 text-white/20 cursor-not-allowed"
+                    }`}
+                  >
+                    {step === 3 ? "Proceed to Payment" : "Continue"}
+                  </button>
+                )}
+              </div>
+            </form>
+          </>
+        )}
       </div>
     </div>
   );
