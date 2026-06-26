@@ -80,6 +80,8 @@ export default function ReadingForm({
     }
   };
 
+  const isTestBypass = formData.name.toUpperCase() === "TEST" || formData.name.toUpperCase() === "MAGIC";
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-mystic-dark/95 backdrop-blur-xl">
       <div className="bg-[#1a0b2e] border border-mystic-gold/20 w-full max-w-lg rounded-3xl p-8 shadow-2xl relative overflow-hidden">
@@ -196,9 +198,6 @@ export default function ReadingForm({
                       onChange={(e) => setFormData({ ...formData, recentSigns: e.target.value })}
                     />
                   </div>
-                  <p className="text-[10px] text-mystic-lavender/40 italic text-center">
-                    This helps us attune the reading to your specific path.
-                  </p>
                 </div>
               )}
 
@@ -209,13 +208,13 @@ export default function ReadingForm({
                   </p>
                   
                   <div className="space-y-4">
-                    {formData.name.toUpperCase() === "TEST" ? (
+                    {isTestBypass ? (
                       <button
                         type="button"
                         onClick={() => onPaymentSuccess(formData, currentType === readingType ? undefined : currentType, currentTitle === readingTitle ? undefined : currentTitle)}
-                        className="w-full py-4 rounded-xl bg-green-600 text-white font-bold font-cinzel hover:bg-green-700 transition-colors shadow-lg shadow-green-900/20"
+                        className="w-full py-4 rounded-xl bg-green-600 text-white font-bold font-cinzel hover:bg-green-700 transition-colors shadow-lg shadow-green-900/20 animate-pulse"
                       >
-                        Test Payment (Bypass)
+                        FREE TEST BYPASS ACTIVE (Click to Proceed)
                       </button>
                     ) : (
                       <>
