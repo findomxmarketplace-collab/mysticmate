@@ -65,8 +65,8 @@ export default function ReadingForm({
   };
 
   const isStepValid = () => {
-    if (step === 1) return formData.name.trim().length >= 2;
-    if (step === 2) return formData.mood.trim().length >= 1; // Allows "ok"
+    if (step === 1) return formData.name.trim().length >= 1;
+    if (step === 2) return formData.mood.trim().length >= 1; 
     return true;
   };
 
