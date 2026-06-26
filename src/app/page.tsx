@@ -153,7 +153,7 @@ export default function Home() {
         {!readingResult && !isGenerating && (
           <div className="text-center mb-16 animate-float">
             <h1 className="text-6xl md:text-8xl font-bold mb-4 bg-gradient-to-b from-mystic-gold to-yellow-600 bg-clip-text text-transparent drop-shadow-sm">
-              MysticMate
+              MysticMate v4.5.1
             </h1>
             <p className="text-xl md:text-2xl text-mystic-lavender/80 tracking-wide font-light italic">
               Uplifting Spiritual Guidance
