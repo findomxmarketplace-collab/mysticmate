@@ -14,13 +14,12 @@ export default function Home() {
   } | null>(null);
   const [readingResult, setReadingResult] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [purchaseCount, setPurchaseCount] = useState(14231);
+  const [purchaseCount, setPurchaseCount] = useState(1);
 
   useEffect(() => {
-    // Simulate live updates to the purchase counter
     const interval = setInterval(() => {
-      setPurchaseCount(prev => prev + Math.floor(Math.random() * 3));
-    }, 10000);
+      setPurchaseCount(prev => prev + Math.floor(Math.random() * 2));
+    }, 30000);
     return () => clearInterval(interval);
   }, []);
 
@@ -43,7 +42,7 @@ export default function Home() {
     },
     {
       title: "Love & Relationships",
-      description: "Deep insights into your heart's journey and soul connections.",
+      description: "Deep insights into your heart\"s journey and soul connections.",
       price: "$2.00",
       icon: "💖",
       color: "border-pink-500/50 hover:border-pink-500",
@@ -144,22 +143,31 @@ export default function Home() {
     <div className="relative min-h-screen flex flex-col items-center p-8">
       <StarsBackground />
       
-      {/* Copyright Notice Top */}
       <div className="absolute top-4 text-[10px] uppercase tracking-widest text-mystic-lavender/40">
         © MysticMate - Copyright Not For Resale
       </div>
+
+      <header className="w-full max-w-6xl flex justify-between items-center py-8 z-10">
+        <div className="text-2xl font-cinzel font-bold text-mystic-gold tracking-[0.2em]">MYSTICMATE</div>
+        <div className="hidden md:flex gap-8 text-[10px] uppercase tracking-widest text-mystic-lavender/60">
+          <a href="#" className="hover:text-mystic-gold transition-colors">Tarot</a>
+          <a href="#" className="hover:text-mystic-gold transition-colors">Spells</a>
+          <a href="#" className="hover:text-mystic-gold transition-colors">Crystals</a>
+          <a href="#" className="hover:text-mystic-gold transition-colors">FAQ</a>
+        </div>
+      </header>
 
       <main className="flex-1 flex flex-col items-center justify-center max-w-6xl w-full py-16">
         {!readingResult && !isGenerating && (
           <div className="text-center mb-16 animate-float">
             <h1 className="text-6xl md:text-8xl font-bold mb-4 bg-gradient-to-b from-mystic-gold to-yellow-600 bg-clip-text text-transparent drop-shadow-sm">
-              MysticMate v4.5.1
+              MysticMate
             </h1>
             <p className="text-xl md:text-2xl text-mystic-lavender/80 tracking-wide font-light italic">
-              Uplifting Spiritual Guidance
+              Created by a spiritual witch for those who love woo woo.
             </p>
             <div className="mt-4 text-sm font-bold text-mystic-gold uppercase tracking-widest">
-              <strong>AI Generated</strong>
+              <strong>AI Generated Sacred Insights</strong>
             </div>
           </div>
         )}
@@ -177,8 +185,8 @@ export default function Home() {
         {readingResult && (
           <ReadingResult 
             reading={readingResult} 
-            title={selectedReading?.title || 'Mystic Reading'}
-            type={selectedReading?.type || 'tarot'}
+            title={selectedReading?.title || "Mystic Reading"}
+            type={selectedReading?.type || "tarot"}
             onReset={() => {
               setReadingResult(null);
               setSelectedReading(null);
@@ -218,10 +226,20 @@ export default function Home() {
                 Long for some real human connection?
               </p>
               <div className="flex justify-center gap-4">
-                <a href="#" className="text-mystic-gold hover:text-white transition-colors text-sm underline">
+                <a 
+                  href="https://www.instagram.com/thewanderingcoaches/" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-mystic-gold hover:text-white transition-colors text-sm underline"
+                >
                   Personal One-on-One Readings
                 </a>
-                <a href="#" className="text-mystic-gold hover:text-white transition-colors text-sm underline">
+                <a 
+                  href="https://www.facebook.com/groups/spiritualseekers" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-mystic-gold hover:text-white transition-colors text-sm underline"
+                >
                   Join Our Spiritual Community
                 </a>
               </div>
@@ -251,11 +269,32 @@ export default function Home() {
 
             <div className="mt-16 p-8 bg-mystic-gold/10 rounded-2xl border border-mystic-gold/20 text-center max-w-2xl w-full">
               <h3 className="text-xl font-bold text-mystic-gold mb-2">Share the Magic</h3>
-              <p className="text-sm text-mystic-lavender/80 mb-6">Love your reading? Share MysticMate with your friends and get your next reading free!</p>
+              <p className="text-sm text-mystic-lavender/80 mb-6">Love your reading? Share MysticMate with your friends!</p>
               <div className="flex justify-center gap-4">
-                <button className="px-6 py-2 bg-[#1877F2] text-white rounded-full text-sm font-bold hover:opacity-90 transition-opacity">Facebook</button>
-                <button className="px-6 py-2 bg-[#1DA1F2] text-white rounded-full text-sm font-bold hover:opacity-90 transition-opacity">Twitter</button>
-                <button className="px-6 py-2 bg-[#E4405F] text-white rounded-full text-sm font-bold hover:opacity-90 transition-opacity">Instagram</button>
+                <a 
+                  href="https://www.facebook.com/sharer/sharer.php?u=https://mysticmate.vercel.app"
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="px-6 py-2 bg-[#1877F2] text-white rounded-full text-sm font-bold hover:opacity-90 transition-opacity"
+                >
+                  Facebook
+                </a>
+                <a 
+                  href="https://twitter.com/intent/tweet?text=I just got an amazing AI reading from MysticMate! ✨&url=https://mysticmate.vercel.app"
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="px-6 py-2 bg-[#1DA1F2] text-white rounded-full text-sm font-bold hover:opacity-90 transition-opacity"
+                >
+                  Twitter
+                </a>
+                <a 
+                  href="https://www.instagram.com/thewanderingcoaches/" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="px-6 py-2 bg-[#E4405F] text-white rounded-full text-sm font-bold hover:opacity-90 transition-opacity"
+                >
+                  Instagram
+                </a>
               </div>
             </div>
 

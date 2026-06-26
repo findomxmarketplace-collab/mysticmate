@@ -66,7 +66,7 @@ export default function ReadingForm({
 
   const isStepValid = () => {
     if (step === 1) return formData.name.trim().length >= 2;
-    if (step === 2) return formData.mood.trim().length >= 3;
+    if (step === 2) return formData.mood.trim().length >= 1; // Allows "ok"
     return true;
   };
 
@@ -125,7 +125,7 @@ export default function ReadingForm({
           <>
             <div className="mb-8">
               <div className="flex justify-between items-end mb-2">
-                <h2 className="text-2xl font-cinzel text-mystic-gold">{currentTitle}</h2>
+                <h2 className="text-2xl font-cinzel text-mystic-gold text-left">{currentTitle}</h2>
                 <span className="text-mystic-lavender/40 text-sm font-light">Step {step} of 4</span>
               </div>
               <div className="h-1 w-full bg-white/5 rounded-full overflow-hidden">
@@ -139,7 +139,7 @@ export default function ReadingForm({
             <form onSubmit={handleSubmit} className="space-y-6">
               {step === 1 && (
                 <div className="animate-in fade-in slide-in-from-right-4 duration-500">
-                  <label className="block text-sm font-medium text-mystic-lavender/60 mb-2 tracking-wide uppercase">
+                  <label className="block text-sm font-medium text-mystic-lavender/60 mb-2 tracking-wide uppercase text-left">
                     What is your name?
                   </label>
                   <input
@@ -159,7 +159,7 @@ export default function ReadingForm({
 
               {step === 2 && (
                 <div className="animate-in fade-in slide-in-from-right-4 duration-500">
-                  <label className="block text-sm font-medium text-mystic-lavender/60 mb-2 tracking-wide uppercase">
+                  <label className="block text-sm font-medium text-mystic-lavender/60 mb-2 tracking-wide uppercase text-left">
                     How are you feeling today?
                   </label>
                   <textarea
@@ -176,7 +176,7 @@ export default function ReadingForm({
               {step === 3 && (
                 <div className="animate-in fade-in slide-in-from-right-4 duration-500 space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-mystic-lavender/60 mb-2 tracking-wide uppercase">
+                    <label className="block text-sm font-medium text-mystic-lavender/60 mb-2 tracking-wide uppercase text-left">
                       Your Star Sign
                     </label>
                     <select
@@ -190,7 +190,7 @@ export default function ReadingForm({
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-mystic-lavender/60 mb-2 tracking-wide uppercase">
+                    <label className="block text-sm font-medium text-mystic-lavender/60 mb-2 tracking-wide uppercase text-left">
                       Any recent signs from the universe? (Optional)
                     </label>
                     <input
