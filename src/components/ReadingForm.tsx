@@ -80,10 +80,10 @@ export default function ReadingForm({
     }
   };
 
-  const isTestBypass = formData.name.toUpperCase() === "TEST" || formData.name.toUpperCase() === "MAGIC";
+  const isTestBypass = formData.name.toUpperCase().includes("TEST") || formData.name.toUpperCase().includes("MAGIC");
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-mystic-dark/95 backdrop-blur-xl">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-mystic-dark/95 backdrop-blur-xl">
       <div className="bg-[#1a0b2e] border border-mystic-gold/20 w-full max-w-lg rounded-3xl p-8 shadow-2xl relative overflow-hidden">
         {/* Decorative background elements */}
         <div className="absolute -top-24 -right-24 w-48 h-48 bg-mystic-gold/10 rounded-full blur-3xl" />
@@ -91,7 +91,7 @@ export default function ReadingForm({
 
         <button
           onClick={onClose}
-          className="absolute top-6 right-6 text-mystic-lavender/40 hover:text-white transition-colors z-10"
+          className="absolute top-6 right-6 text-mystic-lavender/40 hover:text-white transition-colors z-10 p-2"
         >
           ✕
         </button>
@@ -117,7 +117,7 @@ export default function ReadingForm({
                 onClick={handleDeclineUpgrade}
                 className="w-full py-2 text-mystic-lavender/40 hover:text-white transition-colors text-sm underline"
               >
-                No thanks, I\"ll stay with {currentTitle}
+                No thanks, I will stay with {currentTitle}
               </button>
             </div>
           </div>
@@ -151,6 +151,9 @@ export default function ReadingForm({
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   />
+                  <p className="text-[10px] text-mystic-lavender/40 mt-2 italic text-center">
+                    Try using the sacred word \"MAGIC\" for testing purposes.
+                  </p>
                 </div>
               )}
 
@@ -202,43 +205,41 @@ export default function ReadingForm({
               )}
 
               {step === 4 && (
-                <div className="animate-in fade-in slide-in-from-right-4 duration-500 text-center">
-                  <p className="text-mystic-lavender/80 mb-6 italic">
-                    To receive your personalized {currentTitle}, please complete the secure payment of {currentPrice}.
-                  </p>
-                  
-                  <div className="space-y-4">
-                    {isTestBypass ? (
-                      <button
-                        type="button"
-                        onClick={() => onPaymentSuccess(formData, currentType === readingType ? undefined : currentType, currentTitle === readingTitle ? undefined : currentTitle)}
-                        className="w-full py-4 rounded-xl bg-green-600 text-white font-bold font-cinzel hover:bg-green-700 transition-colors shadow-lg shadow-green-900/20 animate-pulse"
-                      >
-                        FREE TEST BYPASS ACTIVE (Click to Proceed)
-                      </button>
-                    ) : (
-                      <>
-                        <PayPalButton
-                          amount={currentPrice.replace("$", "")}
-                          onSuccess={() => onPaymentSuccess(formData, currentType === readingType ? undefined : currentType, currentTitle === readingTitle ? undefined : currentTitle)}
-                        />
-                        
-                        <div className="relative">
-                          <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-white/10"></span></div>
-                          <div className="relative flex justify-center text-xs uppercase"><span className="bg-[#1a0b2e] px-2 text-mystic-lavender/40">Or</span></div>
-                        </div>
+                <div className="animate-in fade-in slide-in-from-right-4 duration-500 text-center space-y-6">
+                  {isTestBypass && (
+                    <button
+                      type="button"
+                      onClick={() => onPaymentSuccess(formData, currentType === readingType ? undefined : currentType, currentTitle === readingTitle ? undefined : currentTitle)}
+                      className="w-full py-6 rounded-2xl bg-green-500 text-white font-bold font-cinzel text-xl hover:bg-green-600 transition-all shadow-xl shadow-green-500/20 animate-pulse border-4 border-white/20"
+                    >
+                      ✨ FREE TEST BYPASS ACTIVE ✨
+                    </button>
+                  )}
 
-                        <button
-                          type="button"
-                          onClick={handlePhantomPayment}
-                          className="w-full py-4 rounded-xl bg-[#ab9ff2] text-white font-bold font-cinzel hover:bg-[#9084e3] transition-colors shadow-lg flex items-center justify-center gap-2"
-                        >
-                          <span className="text-xl">👻</span>
-                          Pay with Phantom (SOL)
-                        </button>
-                      </>
-                    )}
+                  <div className="space-y-4">
+                    <button
+                      type="button"
+                      onClick={handlePhantomPayment}
+                      className="w-full py-4 rounded-xl bg-[#ab9ff2] text-white font-bold font-cinzel hover:bg-[#9084e3] transition-all shadow-lg flex items-center justify-center gap-2 border border-white/10"
+                    >
+                      <span className="text-xl">👻</span>
+                      Pay with Phantom (SOL)
+                    </button>
+
+                    <div className="relative py-2">
+                      <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-white/10"></span></div>
+                      <div className="relative flex justify-center text-xs uppercase"><span className="bg-[#1a0b2e] px-4 text-mystic-lavender/40 tracking-widest">Or Secure PayPal</span></div>
+                    </div>
+
+                    <PayPalButton
+                      amount={currentPrice.replace("$", "")}
+                      onSuccess={() => onPaymentSuccess(formData, currentType === readingType ? undefined : currentType, currentTitle === readingTitle ? undefined : currentTitle)}
+                    />
                   </div>
+                  
+                  <p className="text-[10px] text-mystic-lavender/40 uppercase tracking-tighter">
+                    All transactions are secure and encrypted.
+                  </p>
                 </div>
               )}
 
@@ -262,7 +263,7 @@ export default function ReadingForm({
                         : "bg-white/5 text-white/20 cursor-not-allowed"
                     }`}
                   >
-                    {step === 3 ? "Proceed to Payment" : "Continue"}
+                    {step === 3 ? "Review & Pay" : "Next Step"}
                   </button>
                 )}
               </div>

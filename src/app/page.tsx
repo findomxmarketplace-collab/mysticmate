@@ -261,7 +261,7 @@ export default function Home() {
 
             <div className="mt-16 text-center">
               <p className="text-mystic-gold font-cinzel text-xl mb-1 animate-pulse">
-                {purchaseCount.toLocaleString()} readings provided
+                {purchaseCount.toLocaleString()} seekers have found their path
               </p>
               <p className="text-mystic-lavender/40 text-xs uppercase tracking-widest">
                 Trusted by seekers worldwide
