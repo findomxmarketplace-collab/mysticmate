@@ -13,8 +13,9 @@ export default function Home() {
     price: string;
   } | null>(null);
   const [readingResult, setReadingResult] = useState<string | null>(null);
+  const [readingContext, setReadingContext] = useState<ReadingContext | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [purchaseCount, setPurchaseCount] = useState(1);
+  const [purchaseCount, setPurchaseCount] = useState(14231);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -22,6 +23,28 @@ export default function Home() {
     }, 30000);
     return () => clearInterval(interval);
   }, []);
+
+  const navigateToSection = (id: string | null, selectType?: ReadingType) => {
+    setReadingResult(null);
+    setReadingContext(null);
+    
+    if (selectType) {
+      const reading = readings.find(r => r.type === selectType);
+      if (reading) {
+        setSelectedReading({ type: reading.type, title: reading.title, price: reading.price });
+      }
+    } else {
+      setSelectedReading(null);
+      if (id) {
+        setTimeout(() => {
+          const element = document.getElementById(id);
+          if (element) {
+            element.scrollIntoView({ behavior: "smooth" });
+          }
+        }, 100);
+      }
+    }
+  };
 
   const readings: { title: string; description: string; price: string; icon: string; color: string; type: ReadingType }[] = [
     {
@@ -93,6 +116,8 @@ export default function Home() {
   const handlePaymentSuccess = async (context: ReadingContext, upgradedType?: ReadingType, upgradedTitle?: string) => {
     if (!selectedReading) return;
     
+    setReadingContext(context);
+
     const finalType = upgradedType || selectedReading.type;
     const finalTitle = upgradedTitle || selectedReading.title;
 
@@ -115,16 +140,21 @@ export default function Home() {
           context,
         }),
       });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || `Server responded with ${response.status}`);
+      }
+
       const data = await response.json();
       if (data.reading) {
         setReadingResult(data.reading);
       } else {
-        alert("Something went wrong with your reading. Please contact support.");
-        setSelectedReading(null);
+        throw new Error("No reading returned from universe.");
       }
-    } catch (error) {
-      console.error("Error fetching reading:", error);
-      alert("Error generating reading. Please try again.");
+    } catch (error: any) {
+      console.error("Reading generation error:", error);
+      alert(error.message || "Error generating reading. Please try again.");
       setSelectedReading(null);
     } finally {
       setIsGenerating(false);
@@ -140,7 +170,7 @@ export default function Home() {
   };
 
   return (
-    <div className="relative min-h-screen flex flex-col items-center p-8">
+    <div id="top" className="relative min-h-screen flex flex-col items-center p-8">
       <StarsBackground />
       
       <div className="absolute top-4 text-[10px] uppercase tracking-widest text-mystic-lavender/40">
@@ -148,12 +178,17 @@ export default function Home() {
       </div>
 
       <header className="w-full max-w-6xl flex justify-between items-center py-8 z-10">
-        <div className="text-2xl font-cinzel font-bold text-mystic-gold tracking-[0.2em]">MYSTICMATE</div>
+        <button
+          onClick={() => navigateToSection("top")}
+          className="text-2xl font-cinzel font-bold text-mystic-gold tracking-[0.2em] focus:outline-none hover:opacity-80 transition-opacity"
+        >
+          MYSTICMATE
+        </button>
         <div className="hidden md:flex gap-8 text-[10px] uppercase tracking-widest text-mystic-lavender/60">
-          <a href="#" className="hover:text-mystic-gold transition-colors">Tarot</a>
-          <a href="#" className="hover:text-mystic-gold transition-colors">Spells</a>
-          <a href="#" className="hover:text-mystic-gold transition-colors">Crystals</a>
-          <a href="#" className="hover:text-mystic-gold transition-colors">FAQ</a>
+          <button onClick={() => navigateToSection(null, "tarot")} className="hover:text-mystic-gold transition-colors focus:outline-none uppercase">Tarot</button>
+          <button onClick={() => navigateToSection(null, "spell")} className="hover:text-mystic-gold transition-colors focus:outline-none uppercase">Spells</button>
+          <button onClick={() => navigateToSection(null, "crystal-guide")} className="hover:text-mystic-gold transition-colors focus:outline-none uppercase">Crystals</button>
+          <button onClick={() => navigateToSection("faq")} className="hover:text-mystic-gold transition-colors focus:outline-none uppercase">FAQ</button>
         </div>
       </header>
 
@@ -187,9 +222,15 @@ export default function Home() {
             reading={readingResult} 
             title={selectedReading?.title || "Mystic Reading"}
             type={selectedReading?.type || "tarot"}
+            formData={readingContext ? {
+              name: readingContext.name,
+              starSign: readingContext.starSign,
+              mood: readingContext.mood,
+            } : undefined}
             onReset={() => {
               setReadingResult(null);
               setSelectedReading(null);
+              setReadingContext(null);
             }} 
             onUpsell={handleUpsell}
           />
@@ -223,7 +264,7 @@ export default function Home() {
 
             <div className="mt-12 text-center">
               <p className="text-mystic-lavender/80 font-cinzel text-lg mb-2">
-                Long for some real human connection?
+                Do you want more woo woo?
               </p>
               <div className="flex justify-center gap-4">
                 <a 
@@ -245,7 +286,7 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="mt-20 w-full max-w-4xl">
+            <div id="faq" className="mt-20 w-full max-w-4xl">
               <h2 className="text-3xl font-cinzel text-center text-mystic-gold mb-12">Frequently Asked Questions</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-left">
                 <div className="bg-white/5 p-6 rounded-xl border border-white/10">
@@ -324,6 +365,7 @@ export default function Home() {
           Disclaimer: For entertainment purposes only. MysticMate provides spiritual insights
           and uplifting guidance. Our readings should not replace professional advice
           (legal, medical, financial). All content is G-rated and strictly copyright-protected.
+          Our readings and site content may include affiliate links.
         </div>
       </footer>
 

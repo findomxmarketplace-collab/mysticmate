@@ -1,7 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  // Allow larger body size for readings with detailed content
+  serverExternalPackages: ['pdf-lib'],
 };
 
 export default nextConfig;
