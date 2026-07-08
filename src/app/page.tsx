@@ -266,7 +266,7 @@ export default function Home() {
               <p className="text-mystic-lavender/80 font-cinzel text-lg mb-2">
                 Do you want more woo woo?
               </p>
-              <div className="flex justify-center gap-4">
+              <div className="flex justify-center gap-6 flex-wrap">
                 <a 
                   href="https://www.instagram.com/thewanderingcoaches/" 
                   target="_blank" 
@@ -274,6 +274,14 @@ export default function Home() {
                   className="text-mystic-gold hover:text-white transition-colors text-sm underline"
                 >
                   Personal One-on-One Readings
+                </a>
+                <a 
+                  href="/Want_More_Woo_Woo_Guide.pdf" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-mystic-gold hover:text-white transition-colors text-sm underline font-bold"
+                >
+                  Download Our Official Woo Woo Guide
                 </a>
                 <a 
                   href="https://www.facebook.com/groups/spiritualseekers" 
